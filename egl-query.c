@@ -67,5 +67,8 @@ int main()
         printf("Display extensions:\n NULL %X\n", eglGetError());
     }
 
+    /* release resources */
+    eglTerminate(display);
+
     return 0;
 }
