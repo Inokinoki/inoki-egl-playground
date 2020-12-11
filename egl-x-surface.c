@@ -10,9 +10,9 @@
 #include <X11/Xutil.h>
 
 /* definition in X11, copied from EGL/eglplatform.h */
-typedef Display *EGLNativeDisplayType;
-typedef Pixmap   EGLNativePixmapType;
-typedef Window   EGLNativeWindowType;
+// typedef Display *EGLNativeDisplayType;
+// typedef Pixmap   EGLNativePixmapType;
+// typedef Window   EGLNativeWindowType;
 
 int main()
 {
