@@ -53,6 +53,9 @@ int main()
         return 1;
     }
 
+    /* create context */
+    EGLContext context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
+
     /* create pbuffer surface */
     EGLint surfaceAttribs[] =
     {
@@ -68,9 +71,6 @@ int main()
         eglTerminate(display);
         return 1;
     }
-
-    /* create context */
-    EGLContext context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
 
     /* make context current */
     if (eglMakeCurrent(display, surface, surface, context) != EGL_TRUE)

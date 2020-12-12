@@ -78,7 +78,10 @@ int main()
         return 1;
     }
 
-    /* create pbuffer surface */
+    /* create context */
+    EGLContext context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
+
+    /* create xWindow surface */
     EGLint surfaceAttribs[] =
     {
         EGL_WIDTH, WINDOW_WIDTH,    // set width to WINDOW_WIDTH
@@ -93,9 +96,6 @@ int main()
         eglTerminate(display);
         return 1;
     }
-
-    /* create context */
-    EGLContext context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
 
     /* make context current */
     if (eglMakeCurrent(display, surface, surface, context) != EGL_TRUE)
