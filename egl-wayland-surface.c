@@ -22,6 +22,10 @@ struct wl_shell_surface *wlShellSurface;
 struct wl_egl_window *egl_window;
 
 
+EGLDisplay display;
+EGLSurface surface;
+EGLContext context;
+
 int egl();
 int clear_egl();
 
@@ -119,7 +123,7 @@ int egl()
     EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE, EGL_NONE };
 
     // get current display
-    EGLDisplay display = eglGetDisplay(wlDisplay); // eglGetCurrentDisplay();
+    display = eglGetDisplay(wlDisplay); // eglGetCurrentDisplay();
 
     // init egl
     EGLint major = 1, minor = 5;
@@ -133,7 +137,6 @@ int egl()
     if (eglBindAPI(EGL_OPENGL_ES_API) != EGL_TRUE)
     {
         printf("EGL API bind failed\n");
-        eglTerminate(display);
         return 1;
     }
 
@@ -152,18 +155,16 @@ int egl()
     if (eglChooseConfig(display, fbAttribs, &config, 1, &numConfigs) != EGL_TRUE)
     {
         printf("EGL no filtered configuration 1\n");
-        eglTerminate(display);
         return 1;
     }
     else if (numConfigs < 1)
     {
         printf("EGL no filtered configuration 2\n");
-        eglTerminate(display);
         return 1;
     }
 
     /* create context */
-    EGLContext context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
+    context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
 
     egl_window = wl_egl_window_create(wlSurface, WINDOW_WIDTH, WINDOW_HEIGHT);
     if (egl_window == EGL_NO_SURFACE)
@@ -177,12 +178,10 @@ int egl()
     }
 
     /* create window surface */
-    EGLSurface surface = eglCreateWindowSurface(display, config, egl_window, NULL);
+    surface = eglCreateWindowSurface(display, config, egl_window, NULL);
     if (surface == EGL_NO_SURFACE)
     {
         printf("EGL surface creation failed %X\n", eglGetError());
-        eglDestroySurface(display, surface);
-        eglTerminate(display);
         return 1;
     }
 
@@ -205,18 +204,14 @@ int egl()
 	    printf("Swapped buffers failed\n");
     }
 
-    /* TODO: need defer: release resources */
-    // eglDestroyContext(display, context);
-    // eglDestroySurface(display, surface);
-    // eglTerminate(display);
-
     return 0;
 }
 
 int clear_egl()
 {
-    // eglDestroyContext(display, context);
-    // eglDestroySurface(display, surface);
-    // eglTerminate(display);
+    /* release resources */
+    eglDestroyContext(display, context);
+    eglDestroySurface(display, surface);
+    eglTerminate(display);
     return 0;
 }
