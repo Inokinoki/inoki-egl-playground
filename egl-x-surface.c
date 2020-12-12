@@ -19,23 +19,23 @@ int main()
     /* create an X window */
     Display *xDisplay;
     Window xWindow;
-    const char *msg = "Hello, World!";
     int screen;
     
     xDisplay = XOpenDisplay(NULL);
     if (xDisplay == NULL) {
-        fprintf(stderr, "Cannot open display\n");
-        exit(1);
+        printf("Cannot open display\n");
+        return 1;
     }
     
     screen = DefaultScreen(xDisplay);
-    xWindow = XCreateSimpleWindow(xDisplay, RootWindow(xDisplay, screen), 10, 10, 100, 100, 1,
+    xWindow = XCreateSimpleWindow(xDisplay, RootWindow(xDisplay, screen), 0, 0,
+                            WINDOW_WIDTH, WINDOW_HEIGHT, 1,
                             BlackPixel(xDisplay, screen), WhitePixel(xDisplay, screen));
 
     EGLint contextAttribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE, EGL_NONE };
 
     // get current display
-    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY); // eglGetCurrentDisplay();
+    EGLDisplay display = eglGetDisplay(xDisplay); // eglGetCurrentDisplay();
 
     // init egl
     EGLint major = 1, minor = 5;
@@ -82,13 +82,7 @@ int main()
     EGLContext context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
 
     /* create xWindow surface */
-    EGLint surfaceAttribs[] =
-    {
-        EGL_WIDTH, WINDOW_WIDTH,    // set width to WINDOW_WIDTH
-        EGL_HEIGHT, WINDOW_HEIGHT,  // set height to WINDOW_HEIGHT
-        EGL_NONE
-    };
-    EGLSurface surface = eglCreateWindowSurface(display, config, xWindow, surfaceAttribs);
+    EGLSurface surface = eglCreateWindowSurface(display, config, xWindow, NULL);
     if (surface == EGL_NO_SURFACE)
     {
         printf("EGL surface creation failed %X\n", eglGetError());
@@ -104,10 +98,26 @@ int main()
     }
     else
     {
-        printf("Succeed in creating a pbuffer surface&context\n");
+        printf("Succeed in creating a X window surface&context\n");
     }
 
-    sleep(10);
+    /* register an input handler */
+    XSelectInput(xDisplay, xWindow, ExposureMask | KeyPressMask);
+
+    /* show the window */
+    XMapWindow(xDisplay, xWindow);
+
+    XEvent event;
+    while(1)
+    {
+        XNextEvent(xDisplay, &event);
+        if (event.type == KeyPress)
+        {
+            break;
+        }
+
+        eglSwapBuffers(display, surface);
+    }
 
     /* release resources */
     eglDestroyContext(display, context);
