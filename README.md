@@ -32,12 +32,12 @@ For X11 user, build:
 make egl-x-surface.out
 ```
 
-This program is still under development.
+This program creates a black surface by communicating with X Window system.
 
 ## TODO
 
-- X11 EGL example
 - Write a tutorial
+- Show a triangle in window with OpenGL ES
 
 ## References
 
